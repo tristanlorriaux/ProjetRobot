@@ -31,20 +31,27 @@ void HighISR(void)
         INTCONbits.INT0IF = 0;
         Etat->START = ~Etat->START;
     }
-    if(PIR1bits.ADIF==1)    //Batterie
+    if(PIR1bits.ADIF==1 && ADCON0bits.CHS = 2)    //Batterie
     {
         ADCON0bits.GO=0;
-        PIR1bits.ADIF=0; 
+        PIR1bits.ADIF=0;
         Etat->SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
-        Etat->nbMesure++; 
+        Etat->nbMesure++;
         if(Etat->nbMesure == 4)
         {
             Etat->Vbat = Etat->SommeMesures/4;
-            if(Etat->Vbat < 853)    //853 = 10V à vérifier
+            if(Etat->Vbat < 759)    //759 = 10V à vérifier
                 Etat->START = 0;
             Etat->Vbat = 0;
             Etat->nbMesure = 0;
         }
+    }
+    if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
+    {
+        INTCONbits.TMR0IF=0; 
+        TMR0H=0xE1; 
+        TMR0L=0x7B;             //si le flag d'interruption est ON 
+        ADCON0bits.GO=1;        //On autorise une mesure
     }
 }
 
