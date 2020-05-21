@@ -36,9 +36,24 @@ void initPIC(void)
     	//PIR1bits.TXIF=0;
     	//PIE1bits.TXIE=0;
     	//RCSTAbits.CREN=1;//enables receiver
-   	 TRISCbits.RC6 = 0; //TX en sortie
+   	TRISCbits.RC6 = 0; //TX en sortie
     	TRISCbits.RC7=1;//RX en entrée - récéption
-   
+	
+   /*ADC*/
+	
+    	ADCON1bits.VCFG=0;//Vref- = Vss & Vref+ =VDD
+    	ADCON1bits.PCFG=12;//Port AN2 opened
+   	ADCON2bits.ADCS=6;//Fosc/8 1
+    	ADCON2bits.ACQT=4;//4 TAD 3
+    	ADCON0bits.CHS=2;//Channel 2
+    	ADCON2bits.ADFM=0;//Format left justified
+    	ADCON0bits.ADON=1;//Enable converter
+    	PIR1bits.ADIF=0;//reset flag
+    	PIE1bits.ADIE=1;//allow interrupt
+    	INTCON2bits.INTEDG0 = 0;//Falling Edge
+    	INTCON2bits.INTEDG1 = 0;//Falling Edge
+    	ADCON0bits.GO=1;//launch converter
+
 }
 
 void initINT(void)
