@@ -12,6 +12,9 @@
 //#include "interruption.h"
 #include "fonction.h"
 #include <p18f2520.h>
+#pragma config OSC = INTIO67
+#pragma config PBADEN = OFF, WDT = OFF, LVP = OFF, DEBUG = ON
+
 struct Statut *Etat;
 void HighISR(void);
 
@@ -35,19 +38,22 @@ void HighISR(void)
         INTCONbits.INT0IF = 0;
         Etat->START = ~Etat->START;
     }
-    if(PIR1bits.ADIF==1 && ADCON0bits.CHS = 2)    //Batterie
+    if(PIR1bits.ADIF==1)    //Batterie
     {
-        ADCON0bits.GO=0;
         PIR1bits.ADIF=0;
-        Etat->SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
-        Etat->nbMesure++;
-        if(Etat->nbMesure == 4)
+        if(ADCON0bits.CHS == 2) //On vérifie que le channel est sur Vbat pour éviter de mesurer des valeurs de IRD/G
         {
-            Etat->Vbat = Etat->SommeMesures/4;
-            if(Etat->Vbat < 759)    //759 = 10V à vérifier
-                Etat->START = 0;
-            Etat->Vbat = 0;
-            Etat->nbMesure = 0;
+            ADCON0bits.GO=0;
+            Etat->SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
+            Etat->nbMesure++;
+            if(Etat->nbMesure == 4)
+            {
+                Etat->Vbat = Etat->SommeMesures/4;
+                if(Etat->Vbat < 759)    //759 = 10V à vérifier
+                    Etat->START = 0;
+                Etat->Vbat = 0;
+                Etat->nbMesure = 0;
+            }
         }
     }
     if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
@@ -70,7 +76,7 @@ void main(void)
         while(Etat->START)
         {
           if(detectionObjet())
-              PWM(50);
+              PWM(20);
           else
               PWM(0);
         }
@@ -78,6 +84,5 @@ void main(void)
         PWM(0);
         
     }
-    PWM(0);
 }
 

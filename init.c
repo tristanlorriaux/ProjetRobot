@@ -1,5 +1,6 @@
 #include "init.h"
 #include "MI2C.h"
+#include "fonction.h"
 #include <p18f2520.h>
 
 void initPIC(void)
@@ -64,8 +65,7 @@ void initINT(void)
     PR2 = 249;				// Reglage periode FPWM = Fosc/(4*(PR2+1)*PRE)
     T2CONbits.T2OUTPS=9; // postscaler = 10
     /* Reglage rapport cyclique */
-    CCPR1L = 50;			//20%-->	CCPRxLDCxB1DCxB0 = 0x64 = 0b1100100 --> CCPRxL = 0b1001=0x19 --> DCxB1=DCxB0=0 	
-    CCPR2L = 50;
+    PWM(0);
     CCP1CONbits.DC1B0 = 0;
     CCP1CONbits.DC1B1 = 0;
     CCP2CONbits.DC2B0 = 0;
