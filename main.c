@@ -33,7 +33,7 @@ void HighISR(void)
     {
         PIR1bits.TMR2IF=0;
     }
-    if(INTCONbits.INT0IF)   //Télécommande
+    if(INTCONbits.INT0IF)   //TÃ©lÃ©commande
     {
         INTCONbits.INT0IF = 0;
         Etat->START = ~Etat->START;
@@ -41,7 +41,7 @@ void HighISR(void)
     if(PIR1bits.ADIF==1)    //Batterie
     {
         PIR1bits.ADIF=0;
-        if(ADCON0bits.CHS == 2) //On vérifie que le channel est sur Vbat pour éviter de mesurer des valeurs de IRD/G
+        if(ADCON0bits.CHS == 2) //On vÃ©rifie que le channel est sur Vbat pour Ã©viter de mesurer des valeurs de IRD/G
         {
             ADCON0bits.GO=0;
             Etat->SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
@@ -49,14 +49,14 @@ void HighISR(void)
             if(Etat->nbMesure == 4)
             {
                 Etat->Vbat = Etat->SommeMesures/4;
-                if(Etat->Vbat < 759)    //759 = 10V à vérifier
+                if(Etat->Vbat < 759)    //759 = 10V Ã  vÃ©rifier
                     Etat->START = 0;
-                Etat->Vbat = 0;
+                Etat->SommeMesures = 0;
                 Etat->nbMesure = 0;
             }
         }
     }
-    if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
+    if(INTCONbits.TMR0IF)       //Timer0 qui contrÃ´le la frÃ©quence des mesures batterie
     {
         INTCONbits.TMR0IF=0; 
         TMR0H=0xE1; 
@@ -80,7 +80,7 @@ void main(void)
           else
               PWM(0);
         }
-        /*Séquence d'arrêt (à compléter)*/
+        /*SÃ©quence d'arrÃªt (Ã  complÃ©ter)*/
         PWM(0);
         
     }
