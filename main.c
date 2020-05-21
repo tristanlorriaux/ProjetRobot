@@ -8,7 +8,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "init.h"
-#include "i2c.h"
+#include "MI2C.h"
 //#include "interruption.h"
 #include "fonction.h"
 #include <p18f2520.h>
