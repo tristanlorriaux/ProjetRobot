@@ -33,7 +33,7 @@ void HighISR(void)
     {
         PIR1bits.TMR2IF=0;
     }
-    if(INTCONbits.INT0IF)   //TÃ©lÃ©commande
+    if(INTCONbits.INT0IF)   //Télécommande
     {
         INTCONbits.INT0IF = 0;
         Etat->START = ~Etat->START;
@@ -41,7 +41,7 @@ void HighISR(void)
     if(PIR1bits.ADIF==1)    //Batterie
     {
         PIR1bits.ADIF=0;
-        if(ADCON0bits.CHS == 2) //On vÃ©rifie que le channel est sur Vbat pour Ã©viter de mesurer des valeurs de IRD/G
+        if(ADCON0bits.CHS == 2) //On vérifie que le channel est sur Vbat pour éviter de mesurer des valeurs de IRD/G
         {
             ADCON0bits.GO=0;
             Etat->SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
@@ -49,19 +49,22 @@ void HighISR(void)
             if(Etat->nbMesure == 4)
             {
                 Etat->Vbat = Etat->SommeMesures/4;
-                if(Etat->Vbat < 759)    //759 = 10V Ã  vÃ©rifier
+                if(Etat->Vbat < 759)    //759 = 10V à vérifier
                     Etat->START = 0;
                 Etat->SommeMesures = 0;
                 Etat->nbMesure = 0;
             }
         }
     }
-    if(INTCONbits.TMR0IF)       //Timer0 qui contrÃ´le la frÃ©quence des mesures batterie
+    if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
     {
         INTCONbits.TMR0IF=0; 
-        TMR0H=0xE1; 
-        TMR0L=0x7B;             //si le flag d'interruption est ON 
+        TMR0H=0x0B;             //Rechargement
+        TMR0L=0xDC;            
         ADCON0bits.GO=1;        //On autorise une mesure
+        PORTBbits.RB5=~PORTBbits.RB5;
+        Etat->Timer0 = ~Etat->Timer0;
+        affichageLED(Etat);
     }
 }
 
@@ -70,19 +73,29 @@ void main(void)
 {
     initPIC();
     initINT();
-    while(!Etat->START);
+    initStatut(Etat);
+    while(Etat->START == 0);
     while(1)
     {
         while(Etat->START)
         {
-          if(detectionObjet())
-              PWM(20);
-          else
-              PWM(0);
+            while(~INTCONbits.TMR0IF);  //On fait une détection toute les quart de seconde pour économiser la batterie
+            if(detectionObjet())
+            {
+                Etat->Objet = 1;
+                PWM(20);
+                Etat->Moteurs = 1;
+            }
+            else
+            {
+                Etat->Objet = 0;
+                PWM(0);
+                Etat->Moteurs = 0;
+            }
+            affichageLED(Etat);
         }
-        /*SÃ©quence d'arrÃªt (Ã  complÃ©ter)*/
+        /*Séquence d'arrêt (à compléter)*/
         PWM(0);
         
     }
 }
-

@@ -7,7 +7,7 @@ void initPIC(void)
 {
     /* Configuration Oscillateur*/
 	OSCCONbits.IRCF0 = 0 ;//Horloge à 8Mhz
-    	OSCCONbits.IRCF1 = 1 ;
+    OSCCONbits.IRCF1 = 1 ;
 	OSCCONbits.IRCF2 = 1 ;
     
     /* Configuration E/S*/
@@ -21,7 +21,8 @@ void initPIC(void)
 
     TRISAbits.RA2 = 1;  //Vbat
 
-    TRISBbits.RB0=1; //Interuption télécommande en entrée
+    TRISBbits.RB0 = 1;    //Interuption télécommande en entrée
+    TRISBbits.RB5 = 0;
     
     /* Initialisation I2C*/
     MI2CInit();         
@@ -36,7 +37,7 @@ void initPIC(void)
     TXSTAbits.TXEN=1;//Autorisation des transmissions
     //PIR1bits.TXIF=0;
     //PIE1bits.TXIE=0;
-    //RCSTAbits.CREN=1;//enables receiver
+    //RCSTAbits.CREN=1;//enables receiver'
    	TRISCbits.RC6 = 0; //TX en sortie
     TRISCbits.RC7=1;//RX en entrée - récéption
 	
@@ -85,11 +86,22 @@ void initINT(void)
     INTCONbits.GIE = 1;
     /* Configuration interruption TMR0*/
     T0CONbits.TMR0ON=1; 
-    T0CONbits.T08BIT=0;//16 bits timer 
-    T0CONbits.T0CS=0;//Clock source internal 
-    T0CONbits.PSA=0;//prescaler is assigned 
-    T0CONbits.T0PS=7;//Prescalar selection 1:256 
-    INTCONbits.TMR0IE=1;//enable it 
-    TMR0H=0xE1;//Start time (to overflow at 1s) 
-    TMR0L=0x7B; 
+    T0CONbits.T08BIT=0;     //16 bits timer 
+    T0CONbits.T0CS=0;       //Clock source internal 
+    T0CONbits.PSA=0;        //prescaler is assigned 
+    T0CONbits.T0PS=1;       //Prescalar selection 1:4 pour avoir une période 0.25s
+    INTCONbits.TMR0IE=1;    //enable it 
+    TMR0H=0x0B;             //Start time (to overflow at 1s) 
+    TMR0L=0xDC; 
+}
+
+void initStatut(struct Statut *Etat)
+{
+    Etat->Moteurs = 0;
+    Etat->Objet = 0;
+    Etat->START = 0;
+    Etat->SommeMesures = 0;
+    Etat->Timer0 = 0;
+    Etat->Vbat = 0;
+    Etat->nbMesure = 0;
 }
