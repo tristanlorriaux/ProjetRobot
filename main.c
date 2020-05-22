@@ -15,7 +15,7 @@
 #pragma config OSC = INTIO67
 #pragma config PBADEN = OFF, WDT = OFF, LVP = OFF, DEBUG = ON
 
-struct Statut *Etat;
+struct Statut Etat;
 void HighISR(void);
 
 #pragma code HighVector=0x08
@@ -36,7 +36,7 @@ void HighISR(void)
     if(INTCONbits.INT0IF)   //Télécommande
     {
         INTCONbits.INT0IF = 0;
-        Etat->START = ~Etat->START;
+        Etat.START = ~Etat.START;
     }
     if(PIR1bits.ADIF==1)    //Batterie
     {
@@ -44,16 +44,17 @@ void HighISR(void)
         if(ADCON0bits.CHS == 2) //On vérifie que le channel est sur Vbat pour éviter de mesurer des valeurs de IRD/G
         {
             ADCON0bits.GO=0;
-            Etat->SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
-            Etat->nbMesure++;
-            if(Etat->nbMesure == 4)
+            Etat.SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
+            Etat.nbMesure++;
+            if(Etat.nbMesure == 4)
             {
-                Etat->Vbat = Etat->SommeMesures/4;
-                if(Etat->Vbat < 759)    //759 = 10V à vérifier
-                    Etat->START = 0;
-                Etat->SommeMesures = 0;
-                Etat->nbMesure = 0;
+                Etat.Vbat = Etat.SommeMesures/4;
+                if(Etat.Vbat < 759)    //759 = 10V à vérifier
+                    Etat.START = 0;
+                Etat.SommeMesures = 0;
+                Etat.nbMesure = 0;
             }
+            affichageLED(&Etat);
         }
     }
     if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
@@ -62,9 +63,8 @@ void HighISR(void)
         TMR0H=0x0B;             //Rechargement
         TMR0L=0xDC;            
         ADCON0bits.GO=1;        //On autorise une mesure
-        PORTBbits.RB5=~PORTBbits.RB5;
-        Etat->Timer0 = ~Etat->Timer0;
-        affichageLED(Etat);
+        Etat.Timer0 = ~Etat.Timer0;
+        affichageLED(&Etat);
     }
 }
 
@@ -73,26 +73,26 @@ void main(void)
 {
     initPIC();
     initINT();
-    initStatut(Etat);
-    while(Etat->START == 0);
+    initStatut(&Etat);
+    while(Etat.START == 0);
     while(1)
     {
-        while(Etat->START)
+        while(Etat.START)
         {
-            while(~INTCONbits.TMR0IF);  //On fait une détection toute les quart de seconde pour économiser la batterie
+            while(!INTCONbits.TMR0IF);  //On fait une détection toute les quart de seconde pour économiser la batterie
             if(detectionObjet())
             {
-                Etat->Objet = 1;
+                Etat.Objet = 1;
                 PWM(20);
-                Etat->Moteurs = 1;
+                Etat.Moteurs = 1;
             }
             else
             {
-                Etat->Objet = 0;
+                Etat.Objet = 0;
                 PWM(0);
-                Etat->Moteurs = 0;
+                Etat.Moteurs = 0;
             }
-            affichageLED(Etat);
+            affichageLED(&Etat);
         }
         /*Séquence d'arrêt (à compléter)*/
         PWM(0);

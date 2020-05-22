@@ -13,8 +13,7 @@ void PWM(int r_cyclique);       //Fixe le rapport cyclique du PWM à r_cyclique(%
 
 int detectionObjet(void);       //retourne 1 s'il y a un objet entre 40cm et 150cm
 
-void affichageLED(struct Statut *etat);
+void affichageLED(struct Statut *etat); //Affiche l'état du système via le canal I2C
 
-void DecToBin(struct Statut *etat);
 #endif	/* FONCTION_H */
 

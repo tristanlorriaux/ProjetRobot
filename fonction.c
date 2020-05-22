@@ -44,20 +44,18 @@ void affichageLED(struct Statut *etat)
 {
     int led = 0b11111111;
     if(etat->START)
-        led = led&&0x01111111;
+        led = led&0b01111111;
     else if(etat->Moteurs)
-        led = led&&0x10111111;
+        led = led&0b10111111;
     else if(etat->Timer0)
-        led = led&&0x11011111;
+        led = led&0b11011111;
     else if(etat->Objet)
-        led = led&&0x11101111;
-    else if(etat->nbMesure == 4)
-        led = led&&0x11110111;
+        led = led&0b11101111;
     else if(etat->nbMesure == 3)
-        led = led&&0x11111001;
+        led = led&0b11110011;
     else if(etat->nbMesure == 2)
-        led = led&&0x11111011;
+        led = led&0b11110111;
     else if(etat->nbMesure == 1)
-        led = led&&0x11111101;
+        led = led&0b11111011;
     Write_PCF8574(0x40, led);
 }
