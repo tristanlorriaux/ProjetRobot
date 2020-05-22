@@ -35,7 +35,7 @@ void HighISR(void)
     }
     if(INTCONbits.INT0IF)   //Télécommande
     {
-        INTCONbits.INT0IF = 0;
+        INTCONbits.INT0IF = 0 ;
         Etat.START = ~Etat.START;
     }
     if(PIR1bits.ADIF==1)    //Batterie
@@ -44,17 +44,23 @@ void HighISR(void)
         if(ADCON0bits.CHS == 2) //On vérifie que le channel est sur Vbat pour éviter de mesurer des valeurs de IRD/G
         {
             ADCON0bits.GO=0;
-            Etat.SommeMesures += ADRESH*256+ADRESL; //&0x0000FFFF
+            Etat.SommeMesures += ADRESH*256+ADRESL&0x0000FFFF; //&0x0000FFFF
+            //printf("SommeMesures : %ld\r\n",Etat.SommeMesures);
             Etat.nbMesure++;
+            affichageLED(&Etat);
             if(Etat.nbMesure == 4)
             {
                 Etat.Vbat = Etat.SommeMesures/4;
-                if(Etat.Vbat < 759)    //759 = 10V à vérifier
+                printf("Vbat : %ld\r\n",Etat.Vbat);
+                if(Etat.Vbat < 43200)    //43 200 = 10V
+                {  
                     Etat.START = 0;
+                }
                 Etat.SommeMesures = 0;
                 Etat.nbMesure = 0;
+                affichageLED(&Etat);
             }
-            affichageLED(&Etat);
+            
         }
     }
     if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
@@ -96,6 +102,8 @@ void main(void)
         }
         /*Séquence d'arrêt (à compléter)*/
         PWM(0);
+        initStatut(&Etat);
+        affichageLED(&Etat);
         
     }
 }

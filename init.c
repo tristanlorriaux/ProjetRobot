@@ -31,8 +31,9 @@ void initPIC(void)
     
     TXSTAbits.SYNC=0;//Mode asynchrone 
     TXSTAbits.BRGH=1;//Vitesse élevée
-    BAUDCONbits.BRG16=0;//Baud rate 8 bits
-    SPBRG=51;//Réglage du baud rate
+    BAUDCONbits.BRG16=1;//Baud rate 8 bits
+    SPBRGH = 0;
+    SPBRG=103;//Réglage du baud rate
     RCSTAbits.SPEN=1;
     TXSTAbits.TXEN=1;//Autorisation des transmissions
     //PIR1bits.TXIF=0;
@@ -95,13 +96,13 @@ void initINT(void)
     TMR0L=0xDC; 
 }
 
-void initStatut(struct Statut *Etat)
+void initStatut(struct Statut *etat)
 {
-    Etat->Moteurs = 0;
-    Etat->Objet = 0;
-    Etat->START = 0;
-    Etat->SommeMesures = 0;
-    Etat->Timer0 = 0;
-    Etat->Vbat = 0;
-    Etat->nbMesure = 0;
+    etat->Moteurs = 0;
+    etat->Objet = 0;
+    etat->START = 0;
+    etat->SommeMesures = 0;
+    etat->Timer0 = 0;
+    etat->Vbat = 0;
+    etat->nbMesure = 0;
 }
