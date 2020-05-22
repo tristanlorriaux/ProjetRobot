@@ -35,7 +35,7 @@ int detectionObjet(void)
     IRGmes = ADRESH*256+ADRESL;
     ADCON0bits.GO = 0;
     ADCON0bits.CHS = 2; //Channel sur Vbat    
-    return((40<IRDmes && IRDmes<150) || (40<IRGmes && IRGmes<150)); //Les valeurs sont à changer / 40cm : 0.75V, 150cm : 0.30V
+    return((40<IRDmes && IRDmes<150) || (40<IRGmes && IRGmes<150)); //Les valeurs sont Ã  changer / 40cm : 0.75V, 150cm : 0.30V
 }
 
 
@@ -58,4 +58,10 @@ void affichageLED(struct Statut *etat)
     else if(etat->nbMesure == 1)
         led = led&0b11111011;
     Write_PCF8574(0x40, led);
+}
+
+void arret ()
+{
+    PWM(0);
+    printf("Arret \n");
 }
