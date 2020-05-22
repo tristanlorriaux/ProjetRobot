@@ -9,11 +9,13 @@
 #define	FONCTION_H
 #include "init.h"
 
-void PWM(int r_cyclique);       //Fixe le rapport cyclique du PWM à r_cyclique(%)
+void PWM(int r_cyclique);       //Fixe le rapport cyclique du PWM Ã  r_cyclique(%)
 
 int detectionObjet(void);       //retourne 1 s'il y a un objet entre 40cm et 150cm
 
-void affichageLED(struct Statut *etat); //Affiche l'état du système via le canal I2C
+void affichageLED(struct Statut *etat); //Affiche l'Ã©tat du systÃ¨me via le canal I2C
+
+void arret (void); //Fonction d'arrÃªt des moteurs
 
 #endif	/* FONCTION_H */
 
