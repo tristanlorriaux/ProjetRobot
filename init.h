@@ -12,7 +12,7 @@ enum I2C {INIT, SEND_MESSAGE, RECEIVE_MESSAGE, STOP, ERREUR};
 
 struct Statut
 {
-    volatile int START;
+    volatile unsigned int START;
     unsigned int Moteurs;           //Statut des moteurs (1 : marche, 0 : arrêt)
     volatile unsigned int Timer0;            //Statit de Timer0    
     unsigned int Objet;             //1 si un objet est détecté    

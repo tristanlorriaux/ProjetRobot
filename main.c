@@ -37,6 +37,10 @@ void HighISR(void)
     {
         INTCONbits.INT0IF = 0 ;
         Etat.START = ~Etat.START;
+        if(Etat.START)
+            printf("Démarrage du système\r\n");
+        else
+            printf("Arrêt du système\r\n");
     }
     if(PIR1bits.ADIF==1)    //Batterie
     {
@@ -51,10 +55,11 @@ void HighISR(void)
             if(Etat.nbMesure == 4)
             {
                 Etat.Vbat = Etat.SommeMesures/4;
-                printf("Vbat : %ld\r\n",Etat.Vbat);
+                
                 if(Etat.Vbat < 43200)    //43 200 = 10V
                 {  
                     Etat.START = 0;
+                    printf("Batterie faible\r\n",Etat.Vbat);
                 }
                 Etat.SommeMesures = 0;
                 Etat.nbMesure = 0;
@@ -80,30 +85,36 @@ void main(void)
     initPIC();
     initINT();
     initStatut(&Etat);
-    while(Etat.START == 0);
     while(1)
     {
-        while(Etat.START)
+        while(Etat.START == 0)
         {
-            while(!INTCONbits.TMR0IF);  //On fait une détection toute les quart de seconde pour économiser la batterie
-            if(detectionObjet())
-            {
-                Etat.Objet = 1;
-                PWM(20);
-                Etat.Moteurs = 1;
-            }
-            else
-            {
-                Etat.Objet = 0;
-                PWM(0);
-                Etat.Moteurs = 0;
-            }
-            affichageLED(&Etat);
+            INTCONbits.TMR0IE=0;    //disable it
+            PIE1bits.TMR2IE=0;
+            PIE1bits.ADIE=0;
         }
-        /*Séquence d'arrêt (à compléter)*/
-        PWM(0);
-        initStatut(&Etat);
+        INTCONbits.TMR0IE=1;        //enable it 
+        PIE1bits.TMR2IE=1;
+        PIE1bits.ADIE=1;
+        while(INTCONbits.TMR0IF == 0);  //On fait une détection toute les quart de seconde pour économiser la batterie
+        if(detectionObjet())
+        {
+            Etat.Objet = 1;
+            PWM(20);
+            Etat.Moteurs = 1;
+        }
+        else
+        {
+            Etat.Objet = 0;
+            PWM(0);
+            Etat.Moteurs = 0;
+        }
+        /*Séquence d'arrêt*/
+        if(Etat.START == 0)
+        {
+            PWM(0);
+            initStatut(&Etat);
+        }
         affichageLED(&Etat);
-        
     }
 }
