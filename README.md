@@ -7,4 +7,4 @@ To do list :
   - Régler la fréquence de Timer0 pour améliorer la fréquence de prise de mesure de la tension batterie (c'est fait)
   - Faire des fonctions d'affichage dans la console avec uart (c'est bon)
   - Faire l'affichage led, qu'est ce qu'on affiche? Quand? (c'est bon)
-  - Régler le problème de start qui s'affiche en inversé, et le problème du while(start) qui ne finit pas
+  - Régler le problème de start qui s'affiche en inversé, et le problème du while(start) qui ne finit pas (c'est bon)
