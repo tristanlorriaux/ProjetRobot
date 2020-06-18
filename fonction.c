@@ -37,7 +37,7 @@ int detectionObjet(void)
     //printf("IRGmes : %ld\r\n", IRGmes);
     ADCON0bits.GO = 0;
     ADCON0bits.CHS = 2; //Channel sur Vbat    
-    return((3904<IRDmes && IRDmes<9792) || (3904<IRGmes && IRGmes<9792)); //40cm : 0.75V = 9792, 150cm : 0.30V = 3904
+    return((3904<IRDmes && IRDmes<9792) || (3904<IRGmes && IRGmes<9792)); //Les valeurs sont à changer / 40cm : 0.75V = 9792, 150cm : 0.30V = 3904
 }
 
 
