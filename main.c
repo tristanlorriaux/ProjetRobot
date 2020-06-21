@@ -33,19 +33,19 @@ void HighISR(void)
     {
         PIR1bits.TMR2IF=0;
     }
-    if(INTCONbits.INT0IF)   //Télécommande
+    if(INTCONbits.INT0IF)   //TÃ©lÃ©commande
     {
         INTCONbits.INT0IF = 0 ;
         Etat.START = ~Etat.START;
         if(Etat.START)
-            printf("Démarrage du système\r\n");
+            printf("DÃ©marrage du systÃ¨me\r\n");
         else
-            printf("Arrêt du système\r\n");
+            printf("ArrÃªt du systÃ¨me\r\n");
     }
     if(PIR1bits.ADIF==1)    //Batterie
     {
         PIR1bits.ADIF=0;
-        if(ADCON0bits.CHS == 2) //On vérifie que le channel est sur Vbat pour éviter de mesurer des valeurs de IRD/G
+        if(ADCON0bits.CHS == 2) //On vÃ©rifie que le channel est sur Vbat pour Ã©viter de mesurer des valeurs de IRD/G
         {
             ADCON0bits.GO=0;
             Etat.SommeMesures += ADRESH*256+ADRESL&0x0000FFFF; //&0x0000FFFF
@@ -68,7 +68,7 @@ void HighISR(void)
             
         }
     }
-    if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
+    if(INTCONbits.TMR0IF)       //Timer0 qui contrÃ´le la frÃ©quence des mesures batterie
     {
         INTCONbits.TMR0IF=0; 
         TMR0H=0x0B;             //Rechargement
@@ -96,7 +96,7 @@ void main(void)
         INTCONbits.TMR0IE=1;        //enable it 
         PIE1bits.TMR2IE=1;
         PIE1bits.ADIE=1;
-        while(INTCONbits.TMR0IF == 0);  //On fait une détection toute les quart de seconde pour économiser la batterie
+        while(INTCONbits.TMR0IF == 0);  //On fait une dÃ©tection toute les quarts de seconde pour Ã©conomiser la batterie
         if(detectionObjet())
         {
             Etat.Objet = 1;
@@ -109,7 +109,7 @@ void main(void)
             PWM(0);
             Etat.Moteurs = 0;
         }
-        /*Séquence d'arrêt*/
+        /*SÃ©quence d'arrÃªt*/
         if(Etat.START == 0)
         {
             PWM(0);
