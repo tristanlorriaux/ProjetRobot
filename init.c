@@ -65,7 +65,7 @@ void initINT(void)
     T2CONbits.T2CKPS0 = 1; 
     T2CONbits.T2CKPS1 = 0; // CLK /4
     PR2 = 249;				// Reglage periode FPWM = Fosc/(4*(PR2+1)*PRE)
-    T2CONbits.T2OUTPS=9; // postscaler = 10
+    T2CONbits.T2OUTPS=9; // postscaler = 9
     /* Reglage rapport cyclique */
     PWM(0);
     CCP1CONbits.DC1B0 = 0;

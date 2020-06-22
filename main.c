@@ -33,19 +33,29 @@ void HighISR(void)
     {
         PIR1bits.TMR2IF=0;
     }
-    if(INTCONbits.INT0IF)   //TÃ©lÃ©commande
+    if(INTCONbits.INT0IF)   //Télécommande
     {
         INTCONbits.INT0IF = 0 ;
-        Etat.START = ~Etat.START;
+        Ecrire_i2c_Telecom(0xA2,0x31);//demande à la télécommande
+        while(Detecte_i2c(0xA2));
+        Lire_i2c_Telecom(0xA2,Etat.touche);// on vient recuperer la touche qui a été appuyée
+        /*on teste quelle touche a été appuyée*/
+        if (Etat.touche[1] == 0x33)
+        {
+            if(Etat.START == 1)
+               Etat.START = 0;
+            else
+               Etat.START = 1;
+        }
         if(Etat.START)
-            printf("DÃ©marrage du systÃ¨me\r\n");
+            printf("Démarrage du système\r\n");
         else
-            printf("ArrÃªt du systÃ¨me\r\n");
+            printf("Arrêt du système\r\n");
     }
     if(PIR1bits.ADIF==1)    //Batterie
     {
         PIR1bits.ADIF=0;
-        if(ADCON0bits.CHS == 2) //On vÃ©rifie que le channel est sur Vbat pour Ã©viter de mesurer des valeurs de IRD/G
+        if(ADCON0bits.CHS == 2) //On vérifie que le channel est sur Vbat pour éviter de mesurer des valeurs de IRD/G
         {
             ADCON0bits.GO=0;
             Etat.SommeMesures += ADRESH*256+ADRESL&0x0000FFFF; //&0x0000FFFF
@@ -55,8 +65,8 @@ void HighISR(void)
             if(Etat.nbMesure == 4)
             {
                 Etat.Vbat = Etat.SommeMesures/4;
-                
-                if(Etat.Vbat < 43200)    //43 200 = 10V
+                printf("Vbat : %ldV\r\n", Etat.Vbat*12/65472); //
+                if(Etat.Vbat < 54464)    //43 200 = 10V
                 {  
                     Etat.START = 0;
                     printf("Batterie faible\r\n",Etat.Vbat);
@@ -65,10 +75,9 @@ void HighISR(void)
                 Etat.nbMesure = 0;
                 affichageLED(&Etat);
             }
-            
         }
     }
-    if(INTCONbits.TMR0IF)       //Timer0 qui contrÃ´le la frÃ©quence des mesures batterie
+    if(INTCONbits.TMR0IF)       //Timer0 qui contrôle la fréquence des mesures batterie
     {
         INTCONbits.TMR0IF=0; 
         TMR0H=0x0B;             //Rechargement
@@ -96,10 +105,12 @@ void main(void)
         INTCONbits.TMR0IE=1;        //enable it 
         PIE1bits.TMR2IE=1;
         PIE1bits.ADIE=1;
-        while(INTCONbits.TMR0IF == 0);  //On fait une dÃ©tection toute les quarts de seconde pour Ã©conomiser la batterie
+        while(INTCONbits.TMR0IF == 0);  //On fait une détection toute les quart de seconde pour économiser la batterie
         if(detectionObjet())
         {
+            printf("Objet détecté\r\n");
             Etat.Objet = 1;
+            printf("Démarrage moteur\r\n");
             PWM(20);
             Etat.Moteurs = 1;
         }
@@ -109,7 +120,7 @@ void main(void)
             PWM(0);
             Etat.Moteurs = 0;
         }
-        /*SÃ©quence d'arrÃªt*/
+        /*Séquence d'arrêt*/
         if(Etat.START == 0)
         {
             PWM(0);
